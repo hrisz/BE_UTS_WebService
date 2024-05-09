@@ -4,8 +4,10 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"errors"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -49,14 +51,17 @@ func GetDataAnimeWithUID(uid string) (anidata StatisticData) {
 	return anidata
 }
 
-func GetDataAnimeID(id string) (anidata StatisticData) {
-	anilist := MongoConnect("HoyoAnimation").Collection("staticdata")
-	filter := bson.M{"_id": id}
-	err := anilist.FindOne(context.TODO(), filter).Decode(&anidata)
+func GetAnimeFromID(_id primitive.ObjectID, db *mongo.Database, col string) (anidata StatisticData, errs error) {
+	karyawan := db.Collection(col)
+	filter := bson.M{"_id": _id}
+	err := karyawan.FindOne(context.TODO(), filter).Decode(&anidata)
 	if err != nil {
-		fmt.Printf("GetDataAnimeByID: %v\n", err)
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return anidata, fmt.Errorf("no data found for ID %s", _id)
+		}
+		return anidata, fmt.Errorf("error retrieving data for ID %s: %s", _id, err.Error())
 	}
-	return anidata
+	return anidata, nil
 }
 
 func GetAllDataAnime() (data []StatisticData) {
