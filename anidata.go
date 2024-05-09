@@ -49,6 +49,16 @@ func GetDataAnimeWithUID(uid string) (anidata StatisticData) {
 	return anidata
 }
 
+func GetDataAnimeID(id string) (anidata StatisticData) {
+	anilist := MongoConnect("HoyoAnimation").Collection("staticdata")
+	filter := bson.M{"_id": id}
+	err := anilist.FindOne(context.TODO(), filter).Decode(&anidata)
+	if err != nil {
+		fmt.Printf("GetDataAnimeByID: %v\n", err)
+	}
+	return anidata
+}
+
 func GetAllDataAnime() (data []StatisticData) {
 	anilist := MongoConnect("HoyoAnimation").Collection("staticdata")
 	filter := bson.M{}
