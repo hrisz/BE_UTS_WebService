@@ -52,9 +52,9 @@ func GetDataAnimeWithUID(uid string) (anidata StatisticData) {
 }
 
 func GetAnimeFromID(_id primitive.ObjectID, db *mongo.Database, col string) (anidata StatisticData, errs error) {
-	karyawan := db.Collection(col)
+	anilist := db.Collection(col)
 	filter := bson.M{"_id": _id}
-	err := karyawan.FindOne(context.TODO(), filter).Decode(&anidata)
+	err := anilist.FindOne(context.TODO(), filter).Decode(&anidata)
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			return anidata, fmt.Errorf("no data found for ID %s", _id)
